@@ -171,10 +171,15 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
     }
 });
 
+const purgeChannel = id => {
+    con.query("update channels set side = null where side = ?;", [id], err => {if (err) console.error(err);});
+    con.query("update channels set parent = null where parent = ?;", [id], err => {if (err) console.error(err);});
+
+    con.query("delete from channels where id = ?;" [id], err => {if (err) console.error(err);});
+}
+
 client.on("channelDelete", channel => {
-    con.query("delete from channels where id = ?;", [channel.id], err => {
-        if (err) console.error(err);
-    });
+    purgeChannel(channel.id);
 });
 
 console.log("Logging in...");

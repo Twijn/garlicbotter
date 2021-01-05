@@ -74,6 +74,13 @@ const validate = (values, rules) => {
     return result;
 };
 
+const purgeChannel = id => {
+    con.query("update channels set side = null where side = ?;", [id]);
+    con.query("update channels set parent = null where parent = ?;", [id]);
+
+    con.query("delete from channels where id = ?;" [id]);
+}
+
 class Channel {
     constructor(discord, guild, sideId, parentId, create_side, side_listener) {
         this.discord = discord;
@@ -141,6 +148,7 @@ class Guild {
 
                 if (channel === null || channel === undefined) {
                     reject("Could not resolve discord channel object");
+                    purgeChannel(id);
                     return;
                 }
             }
