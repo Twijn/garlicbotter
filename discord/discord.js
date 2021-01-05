@@ -24,7 +24,7 @@ client.once('ready', () => {
 const logMessage = message => {
     message.gb.guild.channel(message.channel.id, message.channel).then(channel => {
         if (channel.parentId !== null) {
-            con.query("insert into messages (id, channel, parent_channel, content, sent) values (?, ?, ?, ?, ?);", [message.id, message.channel.id, channel.parentId, message.content, message.createdAt], err => {
+            con.query("insert into messages (id, user_id, channel, parent_channel, content, sent) values (?, ?, ?, ?, ?, ?);", [message.id, message.author.id, message.channel.id, channel.parentId, message.content, message.createdAt], err => {
                 if (err) console.error(err);
             });
 
