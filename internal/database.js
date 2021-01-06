@@ -6,6 +6,7 @@ let con = mysql.createConnection({
     user: config.mysql.username,
     password: config.mysql.password,
     database: config.mysql.database,
+    charset: 'utf8mb4',
 });
 
 con.pquery = (sql, binding = null) => {
