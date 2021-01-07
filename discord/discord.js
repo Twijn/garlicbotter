@@ -21,30 +21,6 @@ client.once('ready', () => {
     console.log(`Bot has started with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
 });
 
-const logMessage = message => {
-    message.gb.guild.channel(message.channel.id, message.channel).then(channel => {
-        if (channel.parentId !== null) {
-            con.query("insert into messages (id, user_id, channel, parent_channel, content, sent) values (?, ?, ?, ?, ?, ?);", [message.id, message.author.id, message.channel.id, channel.parentId, message.content, message.createdAt], err => {
-                if (err) console.error(err);
-            });
-
-            con.query("select id from channels where side_listener = true and guild_id = ?;", [message.guild.id], (err, res) => {
-                if (err) {console.error(err);return;}
-
-                const spchMsg = `:speech_balloon: **${message.author.tag}** in #${message.channel.name}: \`${message.content}\``;
-
-                res.forEach(channelObj => {
-                    message.gb.guild.channel(channelObj.id).then(listenerChannel => {
-                        listenerChannel.discord.send(spchMsg);
-                    });
-                });
-
-                console.log(`(#${message.channel.name}) ${message.author.tag}: ${message.content}`);
-            });
-        }
-    }).catch(console.error);
-}
-
 // implement commands
 client.on('message', async message => {
     message.bot_id = client.user.id;
@@ -61,8 +37,6 @@ client.on('message', async message => {
             Manager: Manager,
             guild: gbguild,
         };
-
-        logMessage(message);
 
         // if the message doesn't start with the prefix we don't need to process this as a command.
         if (!message.content.startsWith(prefix)) return;
@@ -104,7 +78,8 @@ const updateChannelPermissions = channel => {
                             permissions = [
                                 {
                                     id: member,
-                                    allow: ['VIEW_CHANNEL']
+                                    allow: ['VIEW_CHANNEL'],
+                                    deny: ['READ_MESSAGE_HISTORY'],
                                 },
                                 ...permissions
                             ];
@@ -166,8 +141,37 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
 });
 
 client.on("channelUpdate", (oldChannel, newChannel) => {
-    if (newChannel.name === "disallow") {
-        
+    const Manager = new GB.Manager(client);
+
+    // this is painful to look at.
+    if (newChannel.name.toLowerCase() === "allow") {
+        Manager.guild(newChannel.guild.id, newChannel.guild).then(guild => {
+            guild.channel(newChannel.id).then(channel => {
+                channel.edit({create_side: true}).catch(console.error);
+                channel.discord.edit({name: oldChannel.name}).catch(console.error);
+            }).catch(console.error);
+        }).catch(console.error);
+    } else if (newChannel.name.toLowerCase() === "disallow") {
+        Manager.guild(newChannel.guild.id, newChannel.guild).then(guild => {
+            guild.channel(newChannel.id).then(channel => {
+                if (channel.parentId !== null) {
+                    channel.parent().then(parent => {
+                        parent.edit({create_side: false}).catch(console.error);
+                    }).catch(console.error);
+
+                    channel.delete().catch(console.error);
+                } else {
+                    channel.edit({create_side: false}).catch(console.error);
+                    channel.discord.edit({name: oldChannel.name}).catch(console.error);
+
+                    if (channel.sideId !== null) {
+                        channel.side().then(side => {
+                            side.delete().catch(console.error);
+                        }).catch(console.error);
+                    }
+                }
+            }).catch(console.error);
+        }).catch(console.error);
     }
 });
 
@@ -175,7 +179,7 @@ const purgeChannel = id => {
     con.query("update channels set side = null where side = ?;", [id], err => {if (err) console.error(err);});
     con.query("update channels set parent = null where parent = ?;", [id], err => {if (err) console.error(err);});
 
-    con.query("delete from channels where id = ?;" [id], err => {if (err) console.error(err);});
+    con.query("delete from channels where id = ?;", [id], err => {if (err) console.error(err);});
 }
 
 client.on("channelDelete", channel => {
