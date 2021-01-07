@@ -134,6 +134,20 @@ class Channel {
             }
         });
     }
+
+    delete() {
+        return new Promise((resolve, reject) => {
+            this.discord.delete().then(() => {
+                con.query("delete from channels where id = ?;", [this.discord.id], err => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            }).catch(reject);
+        });   
+    }
 }
 
 class Guild {
