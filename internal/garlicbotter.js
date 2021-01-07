@@ -153,32 +153,31 @@ class Guild {
                 }
             }
 
-            // try
-            con.query("select * from channels where id = ?;", [channel.id], async (err, result) => {
-                if (err) {reject(err);return;}
+            const tryGet = (retry = true) => {
+                con.query("select * from channels where id = ?;", [channel.id], async (err, result) => {
+                    if (err) {reject(err);return;}
+    
+                    if (result !== undefined && result !== null && result.length > 0) {
+                        // we good, send it.
+                        let channelRes = result[0];
+                        resolve(new Channel(channel, this, channelRes.side, channelRes.parent, channelRes.create_side == true, channelRes.side_listener == true));
+                    } else {
+                        if (!retry) {
+                            reject("Failed to add guild into database. This is awkward");
+                            return;
+                        }
 
-                if (result !== undefined && result !== null && result.length > 0) {
-                    // we good, send it.
-                    let channelRes = result[0];
-                    resolve(new Channel(channel, this, channelRes.side, channelRes.parent, channelRes.create_side == true, channelRes.side_listener == true));
-                } else {
-                    // add
-                    con.query("insert into channels (id, guild_id) values (?, ?);", [channel.id, this.discord.id], err => {
-                        if (err) {reject(err);return;}
-                        // retry
-                        con.query("select * from channels where id = ?;", [channel.id], (err, result) => {
-                            if (err) {reject(err);return;}
-            
-                            if (result !== undefined && result !== null && result.length > 0) {
-                                let channelRes = result[0];
-                                resolve(new Channel(channel, this, channelRes.side, channelRes.parent, channelRes.create_side == true, channelRes.side_listener == true));
-                            } else {
-                                reject("Failed to add guild into database. This is awkward");
-                            }
+                        // add
+                        con.query("insert into channels (id, guild_id) values (?, ?);", [channel.id, this.discord.id], err => {
+                            if (err) {reject(err);console.error(err);return;}
+                            
+                            tryGet(false);
                         });
-                    });
-                }
-            });
+                    }
+                });
+            }
+
+            tryGet();
         });
     }
 }
