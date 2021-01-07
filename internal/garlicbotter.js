@@ -5,6 +5,9 @@ const editRules = {
         side_listener: {
             values: [true, false],
         },
+        create_side: {
+            values: [true, false],
+        }
     },
     GUILD: {
 
@@ -78,7 +81,7 @@ const purgeChannel = id => {
     con.query("update channels set side = null where side = ?;", [id]);
     con.query("update channels set parent = null where parent = ?;", [id]);
 
-    con.query("delete from channels where id = ?;" [id]);
+    con.query("delete from channels where id = ?;", [id]);
 }
 
 class Channel {
