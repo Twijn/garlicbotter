@@ -1,10 +1,15 @@
 const con = require("./database");
 
 const editRules = {
-    CHANNEL: {
-        side_listener: {
+    ROLE: {
+        side_view: {
             values: [true, false],
         },
+        side_history: {
+            values: [true, false],
+        },
+    },
+    CHANNEL: {
         create_side: {
             values: [true, false],
         }
@@ -82,6 +87,53 @@ const purgeChannel = id => {
     con.query("update channels set parent = null where parent = ?;", [id]);
 
     con.query("delete from channels where id = ?;", [id]);
+}
+
+const purgeRole = id => {
+    con.query("delete from roles where id = ?;", [id]);
+}
+
+class Role {
+    constructor(discord, guild, side_view, side_history) {
+        this.discord = discord;
+        this.guild = guild;
+        this.side_view = side_view;
+        this.side_history = side_history;
+    }
+
+    edit(data) {
+        return new Promise((resolve, reject) => {
+            const validation = validate(data, editRules.ROLE);
+    
+            if (validation[0]) {
+                let fields = "";
+                let updateData = [];
+
+                for (const [key, value] of Object.entries(data)) {
+                    if (fields !== "") {
+                        fields += ", ";
+                    }
+                    fields += `${key} = ?`;
+
+                    updateData = [...updateData, value];
+                }
+
+                con.query(`update roles set ${fields} where id = ?;`, [...updateData, this.discord.id], err => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        for (const [key, value] of Object.entries(data)) {
+                            this[key] = value;
+                        }
+
+                        resolve(this);
+                    }
+                });
+            } else {
+                reject(`Validation error: ${validation[1]}`);
+            }
+        });
+    }
 }
 
 class Channel {
@@ -180,12 +232,52 @@ class Guild {
                         resolve(new Channel(channel, this, channelRes.side, channelRes.parent, channelRes.create_side == true, channelRes.side_listener == true));
                     } else {
                         if (!retry) {
-                            reject("Failed to add guild into database. This is awkward");
+                            reject("Failed to add channel into database. This is awkward");
                             return;
                         }
 
                         // add
                         con.query("insert into channels (id, guild_id) values (?, ?);", [channel.id, this.discord.id], err => {
+                            if (err) {reject(err);console.error(err);return;}
+                            
+                            tryGet(false);
+                        });
+                    }
+                });
+            }
+
+            tryGet();
+        });
+    }
+
+    role(id, role = null) {
+        return new Promise(async (resolve, reject) => {
+            if (role === null) {
+                role = await this.discord.roles.resolve(id);
+
+                if (role === null || role === undefined) {
+                    reject("Could not resolve discord role object");
+                    purgeRole(id);
+                    return;
+                }
+            }
+
+            const tryGet = (retry = true) => {
+                con.query("select * from roles where id = ?;", [role.id], async (err, result) => {
+                    if (err) {reject(err);return;}
+    
+                    if (result !== undefined && result !== null && result.length > 0) {
+                        // we good, send it.
+                        let roleRes = result[0];
+                        resolve(new Role(role, this, roleRes.side_view == true, roleRes.side_history == true));
+                    } else {
+                        if (!retry) {
+                            reject("Failed to add role into database. This is awkward");
+                            return;
+                        }
+
+                        // add
+                        con.query("insert into roles (id, guild_id) values (?, ?);", [role.id, this.discord.id], err => {
                             if (err) {reject(err);console.error(err);return;}
                             
                             tryGet(false);
