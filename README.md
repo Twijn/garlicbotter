@@ -8,7 +8,7 @@ Discord bot for ToastFPS Discord Server https://discord.gg/toastfps
   - Usage: `!createsidecategory`
   - *(Ignores all arguments)*
 - !role - Edit role variables, generally for use with granting moderators/adminstrators special permissions.
-  - Usage: `!role &lt;Role Mention&gt; [Variable] [Value (side_history/side_view)]`
+  - Usage: `!role <Role Mention> [Variable] [Value (side_history/side_view)]`
   - *Example: `!role @Moderator side_history true`*
 
 ## Auto Side Channels
