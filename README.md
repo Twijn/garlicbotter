@@ -13,7 +13,7 @@ Discord bot for ToastFPS Discord Server https://discord.gg/toastfps
 
 ## Auto Side Channels
 
-> :warning: By default, **all** channels will be auto-generated side channels when the voice channel is joined. This is even kept when all members leave the chat to allow for moderation on these channels. Other moderator tools can be added to roles via the `!role` command. If you have a side category set up with `!createsidecategory`, unused side chats will be pushed into a side category - this allows moderators, admins, and the server owner to keep the side chats tucked away when they're not used.
+By default, **all** channels will be auto-generated side channels when the voice channel is joined. This is even kept when all members leave the chat to allow for moderation on these channels. Other moderator tools can be added to roles via the `!role` command. If you have a side category set up with `!createsidecategory`, unused side chats will be pushed into a side category - this allows moderators, admins, and the server owner to keep the side chats tucked away when they're not used.
 
 ### Disabling Side Channel Generation
 
@@ -21,7 +21,7 @@ Currently, the only way to disable side channels are by **changing the name of t
 
 ![Instructions for disallowing side channel generation](https://i.twijn.dev/01bQ.gif)
 
-There are known issues where the bot sometimes can't change the channel name when disallowing. This is due to a lack of permissions, and can only be fixed by being granted permissions on that channel or being granted admin permissions. An easy fix to this is to change the name of the side channel instead.
+> :warning: There are known issues where the bot sometimes can't change the channel name when disallowing. This is due to a lack of permissions, and can only be fixed by being granted permissions on that channel or being granted admin permissions. An easy fix to this is to change the name of the side channel instead.
 
 ### Allowing Side Channel Generation
 
