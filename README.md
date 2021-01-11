@@ -4,16 +4,16 @@ Discord bot for ToastFPS Discord Server https://discord.gg/toastfps
 
 ## Commands
 
-- !createsidecategory - Create a category to hold unused side channels. If you don't run this, it will simply keep the side channels where they are.
+- `!createsidecategory` - Create a category to hold unused side channels. If you don't run this, it will simply keep the side channels where they are.
   - Usage: `!createsidecategory`
   - *(Ignores all arguments)*
-- !role - Edit role variables, generally for use with granting moderators/adminstrators special permissions.
+- `!role` - Edit role variables, generally for use with granting moderators/adminstrators special permissions.
   - Usage: `!role <Role Mention> [Variable] [Value (side_history/side_view)]`
   - *Example: `!role @Moderator side_history true`*
 
 ## Auto Side Channels
 
-By default, **all** channels will be auto-generated side channels when the voice channel is joined. This is even kept when all members leave the chat to allow for moderation on these channels. Other moderator tools can be added to roles via the `!role` command. If you have a side category set up with `!createsidecategory`, unused side chats will be pushed into a side category - this allows moderators, admins, and the server owner to keep the side chats tucked away when they're not used.
+> :warning: By default, **all** channels will be auto-generated side channels when the voice channel is joined. This is even kept when all members leave the chat to allow for moderation on these channels. Other moderator tools can be added to roles via the `!role` command. If you have a side category set up with `!createsidecategory`, unused side chats will be pushed into a side category - this allows moderators, admins, and the server owner to keep the side chats tucked away when they're not used.
 
 ### Disabling Side Channel Generation
 
@@ -29,10 +29,12 @@ Similarly to disabling side channels, the only way to reallow side channels are 
 
 ![Instructions for allowing side channel generation](https://i.twijn.dev/89V4.gif)
 
-Similarly to disabling, there are known issues where the bot sometimes can't change the channel name when disallowing. This is due to a lack of permissions, and can only be fixed by being granted permissions on that channel or being granted admin permissions. An easy fix to this is to change the name of the side channel instead.
+> :warning: Similarly to disabling, there are known issues where the bot sometimes can't change the channel name when disallowing. This is due to a lack of permissions, and can only be fixed by being granted permissions on that channel or being granted admin permissions. An easy fix to this is to change the name of the side channel instead.
 
 ## Endless Channels
 
 Endless channels allow you to only show a single voice channel for an event, game, etc. while allowing for full, automatic scalability. As soon as the channel is populated, a new channel will be made.
 
 ### Creation
+
+In order to turn a voice channel into an endless channel, add `>>>` to the start of the name of the 
